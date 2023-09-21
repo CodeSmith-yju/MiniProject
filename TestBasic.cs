@@ -14,9 +14,11 @@ public class GameManager : MonoBehaviour
     public Text turnText;
     public Text playerHP_Text;
     public Text enemyHP_Text;
+    public Text cost_Text;
     public int playerHP;
     public int enemyHP;
     public Button btn;
+    public int cost;
 
 
     
@@ -35,16 +37,27 @@ public class GameManager : MonoBehaviour
     {
         turnText.text = "플레이어 턴";
         state = State.player_Turn;
+        PlayerTurn();
     }
+
+    void PlayerTurn() {
+        cost = 3;
+        cost_Text.text = cost + "/" + "3";
+    }
+
+
 
     public void PlayerAttackButton()
     {
-        if (state != State.player_Turn)
+        cost--;
+        cost_Text.text = cost + "/" + "3";
+        StartCoroutine(PlayerAttack());
+
+        if (cost <= 0)
         {
+            btn.interactable = false;
             return;
         }
-        btn.interactable = false;
-        StartCoroutine(PlayerAttack());
         
     }
     
@@ -52,8 +65,8 @@ public class GameManager : MonoBehaviour
         Awake();
     }
 
-    public void QuitButton() {
-        Application.Quit();
+    public void TurnQuit() {
+        EnemyTurn();
     }
 
 
@@ -70,12 +83,6 @@ public class GameManager : MonoBehaviour
             turnText.text = "승리";
             EndBattle();
         }
-        else
-        {
-            state = State.enemy_Turn;
-            turnText.text = "적의 턴";
-            StartCoroutine(EnemyTurn());
-        }
     }
 
     void EndBattle()
@@ -83,16 +90,28 @@ public class GameManager : MonoBehaviour
         Debug.Log("전투 종료");
     }
 
-    IEnumerator EnemyTurn()
+    void EnemyTurn() {
+        state = State.enemy_Turn;
+        turnText.text = "적의 턴";
+        StartCoroutine(EnemyAttack());
+    }
+
+    IEnumerator EnemyAttack()
     {
         yield return new WaitForSeconds(1f);
         Debug.Log("적 공격");
         playerHP--;
         playerHP_Text.text = "플레이어 체력 : " + playerHP;
 
-        state = State.player_Turn;
-        turnText.text = "플레이어 턴";
-        btn.interactable = true;
+        if(playerHP <= 0) {
+            EndBattle();
+        }
+        else {
+            state = State.player_Turn;
+            turnText.text = "플레이어 턴";
+            btn.interactable = true;
+            PlayerTurn();
+        }
     }
 
 }
