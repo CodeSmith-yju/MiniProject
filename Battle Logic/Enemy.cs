@@ -6,6 +6,7 @@ public class Enemy : MonoBehaviour
 {
     public int Max_Enemy_HP;
     public int cur_Enemy_HP;
+    public int cur_Enemy_Defense_cut;
     public int damage;
     
     public State state = new State();
@@ -16,7 +17,6 @@ public class Enemy : MonoBehaviour
     void Update()
     {
     }
-
     public void Spawn_Enemy(int ran_Spawn) {
         if(GameManager.Turn_Count != 1) {
             return;
@@ -35,14 +35,22 @@ public class Enemy : MonoBehaviour
     public void Jaw_Worm() {
         Max_Enemy_HP = 40;
         cur_Enemy_HP = 40;
-        damage = state.GetAttackDamage(); 
+        Enemy_state(Max_Enemy_HP, cur_Enemy_HP);
+    }
+
+    public void Enemy_state(int maxHp, int curHp) {
+        Max_Enemy_HP = maxHp;
+        cur_Enemy_HP = curHp;
+        damage = state.GetAttackDamage();
     }
 
 
-    public void Act_Enemy(int case) {
+    public void Act_Enemy(int cases) {
         state.attack = false;
+        state.SetAttackDamage(0);
         state.block = false;
-        switch(case) {
+        state.SetDefense(0);
+        switch(cases) {
             case 0: // 턱벌레 패턴
                 if(GameManager.Turn_Count == 1) {
                     state.attack = true;
