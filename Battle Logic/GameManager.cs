@@ -11,6 +11,7 @@ public class GameManager : MonoBehaviour
     private Card card;
     private State state;
     private int cost;
+    private int enemy_spawn = Random.Range(0, 1);
 
     protected enum States {
         Player_Turn, Enemy_Turn, End_Battle
@@ -22,7 +23,7 @@ public class GameManager : MonoBehaviour
     void Awake() {
         Turn_Count = 0;
         character.Player_state();
-        enemy.Enemy_state();
+        enemy.Spawn_Enemy(enemy_spawn);
         card.Cur_Deck_state();
 
         states = States.Player_Turn;
@@ -31,8 +32,8 @@ public class GameManager : MonoBehaviour
 
     void PlayerTurn() {
         Turn_Count++;
-        cost = 3;
-        if(Turn_Count == 1) {
+        cost = 3; 
+        if(Turn_Count == 1) { // 선천성 카드 로직 작성
 
         }
     }
@@ -42,12 +43,13 @@ public class GameManager : MonoBehaviour
     }
 
     void EnemyTurn() {
-        enemy.Act_Enemy();
+        enemy.Act_Enemy(enemy_spawn);
         if(enemy.state.attack) {
             character.cur_Player_HP -= enemy.damage;
             if(enemy.state.block) {
                 enemy.cur_Enemy_HP += enemy.state.GetDefense();
             }
+            return;
         }
         else {
             if(enemy.state.block) {
@@ -57,6 +59,7 @@ public class GameManager : MonoBehaviour
                 // 힘 작성
             }
         }
+        return;
 
     }
 

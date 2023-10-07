@@ -17,43 +17,67 @@ public class Enemy : MonoBehaviour
     {
     }
 
-    public void Enemy_state() {
-        Max_Enemy_HP = 25;
-        cur_Enemy_HP = 25;
-        damage = state.GetAttackDamage();
-    }
-
-    public void Act_Enemy() {
-        state.attack = false;
-        state.block = false;
-        if(GameManager.Turn_Count == 1) {
-            state.attack = true;
-            state.SetAttackDamage(11);
+    public void Spawn_Enemy(int ran_Spawn) {
+        if(GameManager.Turn_Count != 1) {
             return;
         }
-        int ran = Random.Range(0, 2);
-            switch (ran)
-            {  
-                case 0: 
+
+        switch(ran_Spawn) {
+            case 0:
+                Jaw_Worm();
+                break;
+            case 1:
+                Slime();
+                break;
+        }
+    }
+
+    public void Jaw_Worm() {
+        Max_Enemy_HP = 40;
+        cur_Enemy_HP = 40;
+        damage = state.GetAttackDamage(); 
+    }
+
+
+    public void Act_Enemy(int case) {
+        state.attack = false;
+        state.block = false;
+        switch(case) {
+            case 0: // 턱벌레 패턴
+                if(GameManager.Turn_Count == 1) {
                     state.attack = true;
                     state.SetAttackDamage(11);
-                    break;
-                case 1:
-                    state.attack = true;
-                    state.block = true;
-                    state.SetAttackDamage(7);
-                    state.SetDefense(5);
-                    break;
-                case 2:
-                    state.attack = false;
-                    if(dup) {
-                        dup = false;
-                        break;
+                    return;
+                }
+                else {
+                    int ran = Random.Range(0, 2);
+                    switch (ran)
+                    {  
+                        case 0: 
+                            state.attack = true;
+                            state.SetAttackDamage(11);
+                            break;
+                        case 1:
+                            state.attack = true;
+                            state.block = true;
+                            state.SetAttackDamage(7);
+                            state.SetDefense(5);
+                            break;
+                        case 2:
+                            state.attack = false;
+                            if(dup) {
+                                dup = false;
+                                break;
+                            }
+                            state.block = true;
+                            state.SetDefense(6);
+                            dup = true;
+                            break;
                     }
-                    state.block = true;
-                    state.SetDefense(6);
-                    dup = true;
-                    break;
-            }
+                }
+        }
+
+        
+            
     }
 }
