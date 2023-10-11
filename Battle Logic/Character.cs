@@ -8,8 +8,10 @@ public class Character : MonoBehaviour
     public int cur_Player_HP;
     public int cur_Player_Defense_cut;
     public bool barricade = false;
+    public bool Max_Cost_Relic = false;
 
     public State state = new State();
+    public Enemy monster;
 
 
     public void Player_state() {

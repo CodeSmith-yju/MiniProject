@@ -49,7 +49,7 @@ public class GameManager : MonoBehaviour
         Turn_Count++;
         cur_Cost = 3;
         max_Cost = 3;
-        if(maxCost_Up) {
+        if(character.Max_Cost_Relic) {
             max_Cost++;
             cur_Cost = max_Cost;
         }

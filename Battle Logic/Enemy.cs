@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
+    public Character player;
     public int Max_Enemy_HP;
     public int cur_Enemy_HP;
     public int cur_Enemy_Defense_cut;
@@ -27,7 +28,7 @@ public class Enemy : MonoBehaviour
                 Jaw_Worm();
                 break;
             case 1:
-                Slime();
+                Silme();
                 break;
         }
     }
@@ -35,6 +36,12 @@ public class Enemy : MonoBehaviour
     public void Jaw_Worm() {
         Max_Enemy_HP = 40;
         cur_Enemy_HP = 40;
+        Enemy_state(Max_Enemy_HP, cur_Enemy_HP);
+    }
+
+    public void Silme() {
+        Max_Enemy_HP = 65;
+        cur_Enemy_HP = 65;
         Enemy_state(Max_Enemy_HP, cur_Enemy_HP);
     }
 
@@ -83,6 +90,22 @@ public class Enemy : MonoBehaviour
                             break;
                     }
                 }
+                break;
+            case 1: // 슬라임 패턴
+                int ran_2 = Random.Range(0, 2);
+                switch(ran_2) 
+                {
+                    case 0:
+                        state.attack = true;
+                        state.SetAttackDamage(16);
+                        break;
+                    case 1:
+                        player.state.injury = true;
+                        player.state.Injury_Dur(2);
+                        break;
+                }
+
+                break;
         }
 
         
