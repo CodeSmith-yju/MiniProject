@@ -2,24 +2,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Enemy : MonoBehaviour
+public class Enemy : State
 {
-    public Character player;
-    public int Max_Enemy_HP;
-    public int cur_Enemy_HP;
-    public int cur_Enemy_Defense_cut;
-    public int damage;
     
-    public State state = new State();
-    bool dup = false;
+    public Character player;
+    [HideInInspector] public int max_Enemy_HP;
+    [HideInInspector] public int cur_Enemy_HP;
+    [HideInInspector] public int cur_Enemy_Defense_cut;
+    [HideInInspector] public int damage;
+    
+    // public State state; // enemy 상태 State 객체
+    bool dup = false; // 중복 방지 변수
     
     // random 난수, switch-case문 이용
     
-    void Update()
-    {
-    }
     public void Spawn_Enemy(int ran_Spawn) {
-        if(GameManager.Turn_Count != 1) {
+        if(GameManager.Turn_Count != 0) {
             return;
         }
 
@@ -34,34 +32,34 @@ public class Enemy : MonoBehaviour
     }
 
     public void Jaw_Worm() {
-        Max_Enemy_HP = 40;
+        max_Enemy_HP = 40;
         cur_Enemy_HP = 40;
-        Enemy_state(Max_Enemy_HP, cur_Enemy_HP);
+        Enemy_state(max_Enemy_HP, cur_Enemy_HP);
     }
 
     public void Silme() {
-        Max_Enemy_HP = 65;
+        max_Enemy_HP = 65;
         cur_Enemy_HP = 65;
-        Enemy_state(Max_Enemy_HP, cur_Enemy_HP);
+        Enemy_state(max_Enemy_HP, cur_Enemy_HP);
     }
 
     public void Enemy_state(int maxHp, int curHp) {
-        Max_Enemy_HP = maxHp;
+        max_Enemy_HP = maxHp;
         cur_Enemy_HP = curHp;
-        damage = state.GetAttackDamage();
     }
 
 
     public void Act_Enemy(int cases) {
-        state.attack = false;
-        state.SetAttackDamage(0);
-        state.block = false;
-        state.SetDefense(0);
+        attack = false;
+        SetAttackDamage(0);
+        block = false;
+        SetDefense(0);
         switch(cases) {
             case 0: // 턱벌레 패턴
                 if(GameManager.Turn_Count == 1) {
-                    state.attack = true;
-                    state.SetAttackDamage(11);
+                    attack = true;
+                    SetAttackDamage(11);
+                    damage = GetAttackDamage();
                     return;
                 }
                 else {
@@ -69,23 +67,27 @@ public class Enemy : MonoBehaviour
                     switch (ran)
                     {  
                         case 0: 
-                            state.attack = true;
-                            state.SetAttackDamage(11);
+                            attack = true;
+                            SetAttackDamage(11);
+                            damage = GetAttackDamage();
                             break;
                         case 1:
-                            state.attack = true;
-                            state.block = true;
-                            state.SetAttackDamage(7);
-                            state.SetDefense(5);
+                            attack = true;
+                            block = true;
+                            SetAttackDamage(7);
+                            damage = GetAttackDamage();
+                            SetDefense(5);
+                            cur_Enemy_Defense_cut = GetDefense();
                             break;
                         case 2:
-                            state.attack = false;
+                            attack = false;
                             if(dup) {
                                 dup = false;
                                 break;
                             }
-                            state.block = true;
-                            state.SetDefense(6);
+                            block = true;
+                            SetDefense(6);
+                            cur_Enemy_Defense_cut = GetDefense();
                             dup = true;
                             break;
                     }
@@ -96,15 +98,22 @@ public class Enemy : MonoBehaviour
                 switch(ran_2) 
                 {
                     case 0:
-                        state.attack = true;
-                        state.SetAttackDamage(16);
+                        attack = true;
+                        SetAttackDamage(16);
                         break;
                     case 1:
-                        player.state.injury = true;
-                        player.state.Injury_Dur(2);
+                        player.injury = true;
+                        player.Injury_Dur(2);
+                        attack = true;
+                        SetAttackDamage(0);
+                        break;
+                    case 2:
+                        attack = true;
+                        SetAttackDamage(0);
+                        player.weak = true;
+                        player.Weak_Dur(2);
                         break;
                 }
-
                 break;
         }
 

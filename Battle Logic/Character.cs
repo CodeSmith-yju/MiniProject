@@ -2,25 +2,24 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Character : MonoBehaviour
+public class Character : State
 {
-    public int Max_Player_HP;
-    public int cur_Player_HP;
-    public int cur_Player_Defense_cut;
-    public bool barricade = false;
-    public bool Max_Cost_Relic = false;
-
-    public State state = new State();
+    
+    [HideInInspector] public int max_Player_HP;
+    [HideInInspector] public int cur_Player_HP;
+    [HideInInspector] public int cur_Player_Defense_cut;
+    [HideInInspector] public bool barricade = false;
+    [HideInInspector] public bool Max_Cost_Relic = false;
     public Enemy monster;
 
 
     public void Player_state() {
-        Max_Player_HP = 80;
+        max_Player_HP = 80;
         cur_Player_HP = 80;
 
         
-        if(state.block) {
-            cur_Player_Defense_cut += state.GetDefense();
+        if(block) {
+            cur_Player_Defense_cut += GetDefense();
         }
     }
 }
