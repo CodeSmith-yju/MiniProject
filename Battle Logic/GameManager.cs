@@ -4,52 +4,108 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
-{
-    public static int Turn_Count;
-    private Character character;
-    private Enemy enemy;
-    private Card card;
-    private State state;
-    private int cur_Cost;
-    private int max_Cost;
-    private int enemy_spawn;
+{   
+    
+    [HideInInspector] public static int Turn_Count;
+    public Character character;
+    public Enemy enemy;
+    // public Card card;
+    [HideInInspector] private int cur_Cost;
+    [HideInInspector] private int max_Cost;
+    [HideInInspector] private static int enemy_spawn;
 
-    protected enum States {
+
+    public Button turn_End;
+    public Text max_Player_HP_Text;
+    public Text cur_Player_HP_Text;
+    public Text max_Enemy_HP_Text;
+    public Text cur_Enemy_HP_Text;
+    public Text max_Cost_Text;
+    public Text cur_Cost_Text;
+    public Text enemy_act;
+    public Text turn_Count_text;
+    public Text enemy_def;
+    
+
+    private enum State {
         Player_Turn, Enemy_Turn, End_Battle
     }
     
-    private States states;
+    private State state;
     
 
     void Awake() {
-        Turn_Count = 0;
-        enemy_spawn = Random.Range(0, 1);
-        character.Player_state();
+        turn_Count_text.text = Turn_Count.ToString();
+        enemy_spawn = 0;
+        character.Spawn_Player();
         enemy.Spawn_Enemy(enemy_spawn);
-        enemy.Enemy_state(enemy.Max_Enemy_HP,enemy.cur_Enemy_HP);
-        card.Cur_Deck_state();
-        
+        // card.Cur_Deck_state();
+        enemy_act.text = "";
+        enemy_def.text = "";
+
+        max_Player_HP_Text.text = character.max_Player_HP.ToString();
+        cur_Player_HP_Text.text = character.cur_Player_HP.ToString();
+
+        max_Enemy_HP_Text.text = enemy.max_Enemy_HP.ToString();
+        cur_Enemy_HP_Text.text = enemy.cur_Enemy_HP.ToString();
+
+        Debug.Log("게임 시작");
         PlayerTurn();
     }
 
+    // void Start() {
+    //     character.Player_state(character.max_Player_HP, character.cur_Player_HP);
+    // }
+
     void Update() {
-        character.Player_state();
-        enemy.Enemy_state(enemy.Max_Enemy_HP,enemy.cur_Enemy_HP);
+        if(state == State.Enemy_Turn) {
+            character.Player_state(character.max_Player_HP, character.cur_Player_HP);
+        }
+        else if (state == State.Player_Turn) {
+            enemy.Enemy_state(enemy.max_Enemy_HP,enemy.cur_Enemy_HP);
+        }
+        
+        
+        max_Player_HP_Text.text = character.max_Player_HP.ToString();
+        cur_Player_HP_Text.text = character.cur_Player_HP.ToString();
+
+        max_Enemy_HP_Text.text = enemy.max_Enemy_HP.ToString();
+        cur_Enemy_HP_Text.text = enemy.cur_Enemy_HP.ToString();
     }
 
     void PlayerTurn() {
-        states = States.Player_Turn;
+        Debug.Log("플레이어 턴");
+        state = State.Player_Turn;
         if(character.barricade) {
-            character.state.block = true;
+            character.block = true;
         }
         else {
-            character.state.block = false;
+            character.block = false;
             character.cur_Player_Defense_cut = 0;
         }
+
+
+        if(character.weak) {
+            character.weak_Duration--;
+
+            if(character.power_Duration == 0) {
+                character.weak = false;
+            }
+        }
+
+        if(character.injury) {
+            character.injury_Duration--;
+
+            if(character.injury_Duration == 0) {
+                character.injury = false;
+            }
+        }
+
         Turn_Count++;
+        turn_Count_text.text = Turn_Count.ToString();
         cur_Cost = 3;
         max_Cost = 3;
-        if(maxCost_Up) {
+        if(character.Max_Cost_Relic) {
             max_Cost++;
             cur_Cost = max_Cost;
         }
@@ -58,39 +114,72 @@ public class GameManager : MonoBehaviour
         if(Turn_Count == 1) { // 선천성 카드 로직 작성
 
         }
+        // 적 행동 보여주는 코드 작성
+        enemy.Act_Enemy(enemy_spawn);
+        if(enemy.attack) {
+            if(enemy.block) {
+                enemy_act.text = enemy.damaged.ToString() + ", " + "<color=#0017FF>" + enemy.GetDefense().ToString() + "</color>";
+            }
+            else {
+                enemy_act.text = enemy.damaged.ToString();
+            }
+        }
+        else if (enemy.block) {
+            enemy_act.text = "<color=#0017FF>" + enemy.GetDefense().ToString() + "</color>";
+        }
     }
 
-    void TurnEnd() {
-        states = States.Enemy_Turn;
+    public void TurnEnd() {
+        state = State.Enemy_Turn;
+        Debug.Log("턴 종료");
         EnemyTurn();
     }
 
     void EnemyTurn() {
-        if(enemy.state.block) {
-            enemy.cur_Enemy_Defense_cut = 0;
-            enemy.Act_Enemy(enemy_spawn);
+        Debug.Log("적 턴 시작");
+        enemy.cur_Enemy_Defense_cut = 0;
+        enemy_def.text = "";
+
+
+        if(enemy.weak) {
+            enemy.weak_Duration--;
+
+            if(enemy.power_Duration == 0) {
+                enemy.weak = false;
+            }
         }
-        else {
-            enemy.Act_Enemy(enemy_spawn);
+
+        if(enemy.injury) {
+            enemy.injury_Duration--;
+
+            if(enemy.injury_Duration == 0) {
+                enemy.injury = false;
+            }
         }
+
         
-        if(enemy.state.attack) {
-            if(character.cur_Player_Defense_cut - enemy.damage >= 0) {
-                character.cur_Player_Defense_cut -= enemy.damage;
+        if(enemy.attack) {
+            int damage_Val = enemy.damaged;
+            int player_Def = character.cur_Player_Defense_cut;
+            enemy_act.text = enemy.damaged.ToString();
+            if(player_Def - damage_Val >= 0) {
+                player_Def -= damage_Val;
             }
             else {
-                character.cur_Player_HP -= (enemy.damage - character.cur_Player_Defense_cut);
+                character.cur_Player_HP -= damage_Val - player_Def;
             }
 
-            if(enemy.state.block) {
-                enemy.cur_Enemy_Defense_cut += enemy.state.GetDefense();
+            if(enemy.block) {
+                enemy.cur_Enemy_Defense_cut += enemy.GetDefense();
+                enemy_def.text = enemy.cur_Enemy_Defense_cut.ToString();
             }
         }
-        else {
-            if(enemy.state.block) {
-                enemy.cur_Enemy_Defense_cut += enemy.state.GetDefense();
-            } // 버프 효과 작성 (방어도, 힘 등)
-            if (enemy.state.power) {
+        else { // 버프 효과 작성 (방어도, 힘 등)
+            if(enemy.block) {
+                enemy.cur_Enemy_Defense_cut += enemy.GetDefense();
+                enemy_def.text = enemy.cur_Enemy_Defense_cut.ToString();
+            } 
+            if (enemy.power) {
                 // 힘 작성
             }
         }
@@ -99,7 +188,9 @@ public class GameManager : MonoBehaviour
     }
 
     void End() {
-        states = States.End_Battle;
+        state = State.End_Battle;
+        Debug.Log("전투 종료");
+
         // 맵 씬으로 이동하는 코드
     }
 
