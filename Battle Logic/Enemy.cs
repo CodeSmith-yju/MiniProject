@@ -12,7 +12,7 @@ public class Enemy : State
     [HideInInspector] public int damaged;
     
     // public State state; // enemy 상태 State 객체
-    bool dup = false; // 중복 방지 변수
+    bool dup = false; // 중복 패턴 방지 변수
     
     // random 난수, switch-case문 이용
     

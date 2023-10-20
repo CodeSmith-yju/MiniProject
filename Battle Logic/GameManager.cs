@@ -37,7 +37,7 @@ public class GameManager : MonoBehaviour
     void Awake() {
         turn_Count_text.text = Turn_Count.ToString();
         enemy_spawn = 0;
-        character.Spawn_Player();
+        character.Spawn_Player(); // 실제 빌드 시 체력이 초기화되는 버그 발생 가능성 다수 (확인 후 수정 예정)
         enemy.Spawn_Enemy(enemy_spawn);
         // card.Cur_Deck_state();
         enemy_act.text = "";
@@ -58,6 +58,7 @@ public class GameManager : MonoBehaviour
     // }
 
     void Update() {
+        // 캐릭터와 몬스터 체력 상황 업데이트
         if(state == State.Enemy_Turn) {
             character.Player_state(character.max_Player_HP, character.cur_Player_HP);
         }
@@ -114,7 +115,7 @@ public class GameManager : MonoBehaviour
         if(Turn_Count == 1) { // 선천성 카드 로직 작성
 
         }
-        // 적 행동 보여주는 코드 작성
+        // 적 행동 보여주는 코드 작성 (임시)
         enemy.Act_Enemy(enemy_spawn);
         if(enemy.attack) {
             if(enemy.block) {
@@ -138,7 +139,7 @@ public class GameManager : MonoBehaviour
     void EnemyTurn() {
         Debug.Log("적 턴 시작");
         enemy.cur_Enemy_Defense_cut = 0;
-        enemy_def.text = "";
+        enemy_def.text = ""; // 임시 방어도 text
 
 
         if(enemy.weak) {
