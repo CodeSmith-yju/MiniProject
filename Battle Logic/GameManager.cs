@@ -88,7 +88,7 @@ public class GameManager : MonoBehaviour
         if(character.weak) {
             character.weak_Duration--;
 
-            if(character.power_Duration == 0) {
+            if(character.weak_Duration == 0) {
                 character.weak = false;
             }
         }
@@ -144,7 +144,7 @@ public class GameManager : MonoBehaviour
         if(enemy.weak) {
             enemy.weak_Duration--;
 
-            if(enemy.power_Duration == 0) {
+            if(enemy.weak_Duration == 0) {
                 enemy.weak = false;
             }
         }
