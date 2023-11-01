@@ -12,10 +12,20 @@ public class Character : State
     [HideInInspector] public bool Max_Cost_Relic = false;
     public Enemy monster;
 
-
-    public void Player_state() {
+    public void Spawn_Player() {
         max_Player_HP = 80;
         cur_Player_HP = 80;
+        Player_state(max_Player_HP, cur_Player_HP);
+    }
+
+
+    public void Player_state(int max, int cur) {
+        max_Player_HP = max;
+        cur_Player_HP = cur;
+
+        if(GameManager.Turn_Count == 1) {
+            cur_Player_Defense_cut = 0;
+        }
 
         
         if(block) {

@@ -8,8 +8,8 @@ public class Enemy : State
     public Character player;
     [HideInInspector] public int max_Enemy_HP;
     [HideInInspector] public int cur_Enemy_HP;
-    [HideInInspector] public int cur_Enemy_Defense_cut;
-    [HideInInspector] public int damage;
+    [HideInInspector] public int cur_Enemy_Defense_cut = 0;
+    [HideInInspector] public int damaged;
     
     // public State state; // enemy 상태 State 객체
     bool dup = false; // 중복 방지 변수
@@ -54,64 +54,72 @@ public class Enemy : State
         SetAttackDamage(0);
         block = false;
         SetDefense(0);
+
+        if(GameManager.Turn_Count == 1) {
+            cur_Enemy_Defense_cut = 0;
+        }
+        
         switch(cases) {
             case 0: // 턱벌레 패턴
                 if(GameManager.Turn_Count == 1) {
                     attack = true;
                     SetAttackDamage(11);
-                    damage = GetAttackDamage();
-                    return;
+                    damaged = GetAttackDamage();
                 }
                 else {
-                    int ran = Random.Range(0, 2);
+                    int ran;
+                    if(dup) {
+                        ran = Random.Range(0, 2);
+                        dup = false;
+                    }
+                    else {
+                        ran = Random.Range(0, 3);
+                    }
                     switch (ran)
                     {  
                         case 0: 
                             attack = true;
                             SetAttackDamage(11);
-                            damage = GetAttackDamage();
+                            damaged = GetAttackDamage();
                             break;
                         case 1:
                             attack = true;
                             block = true;
                             SetAttackDamage(7);
-                            damage = GetAttackDamage();
+                            damaged = GetAttackDamage();
                             SetDefense(5);
-                            cur_Enemy_Defense_cut = GetDefense();
                             break;
                         case 2:
                             attack = false;
-                            if(dup) {
-                                dup = false;
-                                break;
-                            }
                             block = true;
                             SetDefense(6);
-                            cur_Enemy_Defense_cut = GetDefense();
                             dup = true;
                             break;
                     }
                 }
                 break;
             case 1: // 슬라임 패턴
-                int ran_2 = Random.Range(0, 2);
+                int ran_2 = Random.Range(0, 3);
                 switch(ran_2) 
                 {
                     case 0:
                         attack = true;
                         SetAttackDamage(16);
+                        damaged = GetAttackDamage();
                         break;
                     case 1:
                         player.injury = true;
                         player.Injury_Dur(2);
                         attack = true;
                         SetAttackDamage(0);
+                        damaged = GetAttackDamage();
                         break;
                     case 2:
                         attack = true;
                         SetAttackDamage(0);
                         player.weak = true;
                         player.Weak_Dur(2);
+                        damaged = GetAttackDamage();
                         break;
                 }
                 break;

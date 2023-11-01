@@ -38,10 +38,6 @@ public class State : MonoBehaviour
         injury_Duration =+ dur;
     }
 
-    public void Power_Dur(int dur) {
-        power_Duration =+ dur;
-    }
-
     public void Weak_Dur(int dur) {
         weak_Duration =+ dur;
     }
